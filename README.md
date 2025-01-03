@@ -1,3 +1,7 @@
+# Enhanced-Task-Manager-Application ⚙️
+
+Effortlessly manage your tasks, organize them with tags, and keep track of user details—all with a powerful yet simple command-line interface.
+
 - `create_db.py`: Script to create the SQLite database and tables.
 - `main.py`: Main application script that provides a command-line interface for managing tasks, tags, and user details.
 - `sql.py`: Contains functions to interact with the SQLite database.
