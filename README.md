@@ -12,7 +12,7 @@ Enhanced-Task-Manager-Application is a Python tool designed to help users manage
 
 1. Clone the repository:
     ```sh
-    git clone [<repository-url>](https://github.com/0xDAG0N/TaskForge)
+    git clone https://github.com/0xDAG0N/TaskForge
     cd TaskForge
     ```
 
