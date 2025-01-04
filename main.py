@@ -7,6 +7,12 @@ from art import *
 from termcolor import colored
 import inquirer
 from prettytable import PrettyTable
+import sys
+import time
+from playsound import playsound
+from threading import Thread, Event
+import pygame
+
 
 # Utility Functions
 def notify_user(message):
@@ -22,13 +28,28 @@ def table_printer(data, columns):
             table.add_row(row)
     print(table)
 
-def typing_effect(text, delay=0.05):
-    """Prints text with a typing effect."""
+# Initialize pygame mixer
+pygame.mixer.init()
+
+def play_sound(stop_event):
+    pygame.mixer.music.load('media/typing.wav')
+    pygame.mixer.music.play(-1)  # Loop the sound indefinitely
+    while not stop_event.is_set():
+        time.sleep(0.1)  # Check the stop event periodically
+    pygame.mixer.music.stop()
+
+def typing_effect_with_sound(text, delay=0.05):
+    stop_event = Event()
+    sound_thread = Thread(target=play_sound, args=(stop_event,))
+    sound_thread.start()
+    
     for char in text:
-        sys.stdout.write(char)
-        sys.stdout.flush()
+        print(char, end='', flush=True)
         time.sleep(delay)
-    print()  
+    
+    stop_event.set()
+    sound_thread.join()  # Ensure the sound thread finishes before exiting the function
+    print()
 
 # User Operations
 def user_operations():
@@ -226,10 +247,13 @@ def task_tag_relations_operations():
 
 # Main Function
 def main():
-    notify_user("MySequal")
-    typing_effect("Welcome to TaskForce141, the ultimate task manager!")
-    typing_effect("By Dagon")
-    typing_effect("Github: https://github.com/0xDAG0N/TaskForsce141")
+    notify_user("Task Force 141")
+    typing_effect_with_sound(">>> Welcome, Operator, to TaskForce141 <<<")
+    typing_effect_with_sound("Mission Objective: Dominate your tasks with precision and speed.")
+    typing_effect_with_sound("Created by Dagon, for those who never back down.")
+    typing_effect_with_sound("Intel HQ: https://github.com/0xDAG0N/TaskForce141")
+    print()
+
 
     while True:
         actions = [
