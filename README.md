@@ -1,4 +1,4 @@
-# Enhanced-Task-Manager-Application ⚙️
+# TaskForge ⚡
 
 Effortlessly manage your tasks, organize them with tags, and keep track of user details—all with a powerful yet simple command-line interface.
 
