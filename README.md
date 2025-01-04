@@ -1,6 +1,8 @@
 # TaskForge ⚡
-
 Effortlessly manage your tasks, organize them with tags, and keep track of user details—all with a powerful yet simple command-line interface.
+
+## About TaskForge
+Enhanced-Task-Manager-Application is a Python tool designed to help users manage their tasks efficiently. It provides functionalities to create, update, delete, and fetch tasks, tags, and user details using a command-line interface.
 
 - `create_db.py`: Script to create the SQLite database and tables.
 - `main.py`: Main application script that provides a command-line interface for managing tasks, tags, and user details.
@@ -10,14 +12,16 @@ Effortlessly manage your tasks, organize them with tags, and keep track of user 
 
 1. Clone the repository:
     ```sh
-    git clone <repository-url>
-    cd Enhanced-Task-Manager-Application
+    git clone [<repository-url>](https://github.com/0xDAG0N/TaskForge)
+    cd TaskForge
     ```
 
 2. Install the required dependencies:
     ```sh
     pip install -r requirements.txt
     ```
+
+    
 
 3. Create the database:
     ```sh
