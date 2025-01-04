@@ -22,6 +22,14 @@ def table_printer(data, columns):
             table.add_row(row)
     print(table)
 
+def typing_effect(text, delay=0.05):
+    """Prints text with a typing effect."""
+    for char in text:
+        sys.stdout.write(char)
+        sys.stdout.flush()
+        time.sleep(delay)
+    print()  
+
 # User Operations
 def user_operations():
     actions = [
@@ -219,7 +227,9 @@ def task_tag_relations_operations():
 # Main Function
 def main():
     notify_user("MySequal")
-    print("Welcome to MySequal, the SQL database manager! \n")
+    typing_effect("Welcome to TaskForce141, the ultimate task manager!")
+    typing_effect("By Dagon")
+    typing_effect("Github: https://github.com/0xDAG0N/TaskForsce141")
 
     while True:
         actions = [
