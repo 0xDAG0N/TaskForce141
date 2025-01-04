@@ -1,4 +1,14 @@
-# TaskForce141 ⚡
+# TaskForce141 
+
+```
+ _____              _      _____                            _  _  _    _
+|_   _|  __ _  ___ | | __ |  ___|  ___   _ __   ___   ___  / || || |  / |
+  | |   / _` |/ __|| |/ / | |_    / _ \ | '__| / __| / _ \ | || || |_ | |
+  | |  | (_| |\__ \|   <  |  _|  | (_) || |   | (__ |  __/ | ||__   _|| |
+  |_|   \__,_||___/|_|\_\ |_|     \___/ |_|    \___| \___| |_|   |_|  |_|
+```
+
+
 Effortlessly manage your tasks, organize them with tags, and keep track of user details—all with a powerful yet simple command-line interface.
 
 ## About TaskForce141
