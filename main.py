@@ -3,6 +3,7 @@ Enhanced Task Manager Application
 """
 
 import sql
+import sqlite3
 from art import *
 from termcolor import colored
 import inquirer
@@ -11,7 +12,10 @@ import sys
 import time
 from playsound import playsound
 from threading import Thread, Event
-import pygame
+from os import environ
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+
+import pygame  # it is important to import pygame after that
 
 
 # Utility Functions
@@ -53,197 +57,322 @@ def typing_effect_with_sound(text, delay=0.05):
 
 # User Operations
 def user_operations():
-    actions = [
+    user_actions = [
         "Create User", "Update User", "Delete User", 
         "Fetch User", "Fetch All Users", "Back to Main Menu"
     ]
     while True:
-        action = inquirer.prompt([inquirer.List("action", message="User Operations", choices=actions)])['action']
+        action = inquirer.prompt([inquirer.List("action", message="User Operations", choices=user_actions)])['action']
         if action == "Back to Main Menu":
             break
         elif action == "Create User":
             name = input("Enter user name: ")
             email = input("Enter user email: ")
-            sql.create_user(name, email)
-            notify_user("User created!")
+            try:
+                sql.create_user(name, email)
+            except sqlite3.Error as e:
+                print(f"Error creating user: {e}")
+            else:
+                notify_user("User created!")
         elif action == "Update User":
-            user_id = int(input("Enter user id: "))
+            try:
+                user_id = int(input("Enter user id: "))
+            except ValueError:
+                print("Invalid input. Please enter an integer for user ID.")
+                continue  # Go back to the beginning of the loop
             name = input("Enter new user name: ")
             email = input("Enter new user email: ")
-            sql.update_user(user_id, name, email)
-            notify_user("User updated!")
+            try:
+                sql.update_user(user_id, name, email)
+            except sqlite3.Error as e:
+                print(f"Error updating user: {e}")
+            else:
+                notify_user("User updated!")
         elif action == "Delete User":
-            user_id = int(input("Enter user id: "))
-            sql.delete_user(user_id)
-            notify_user("User deleted!")
+            try:
+                user_id = int(input("Enter user id: "))
+            except ValueError:
+                print("Invalid input. Please enter an integer for user ID.")
+                continue  # Go back to the beginning of the loop
+            try:
+                sql.delete_user(user_id)
+            except sqlite3.Error as e:
+                print(f"Error deleting user: {e}")
+            else:
+                notify_user("User deleted!")
         elif action == "Fetch User":
-            user_id = int(input("Enter user id: "))
+            try:
+                user_id = int(input("Enter user id: "))
+            except ValueError:
+                print("Invalid input. Please enter an integer for user ID.")
+                continue  # Go back to the beginning of the loop
             user = sql.read_user(user_id)
-            table_printer(user, ['ID', 'Name', 'Email'])
+            if user:
+                table_printer(user, ['ID', 'Name', 'Email'])
+            else:
+                print(f"No user found with ID {user_id}")
         elif action == "Fetch All Users":
             users = sql.read_users()
-            table_printer(users, ['ID', 'Name', 'Email'])
+            if users:
+                table_printer(users, ['ID', 'Name', 'Email'])
+            else:
+                print("No users found.")
 
 # User Details Operations
 def user_details_operations():
-    actions = [
+    user_details_actions = [
         "Create User Details", "Update User Details", 
         "Delete User Details", "View User Details", 
         "Fetch All User Details", "Back to Main Menu"
     ]
     while True:
-        action = inquirer.prompt([inquirer.List("action", message="User Details Operations", choices=actions)])['action']
+        action = inquirer.prompt([inquirer.List("action", message="User Details Operations", choices=user_details_actions)])['action']
         if action == "Back to Main Menu":
             break
         elif action == "Create User Details":
-            phone = input("Enter phone number: ")
-            preferences = input("Enter preferences: ")
-            address = input("Enter address: ")
-            sql.create_user_details(phone, preferences, address)
-            notify_user("User details created!")
+            try:
+                user_id = int(input("Enter user id: "))
+                phone = input("Enter phone number: ")
+                preferences = input("Enter preferences: ")
+                address = input("Enter address: ")
+                sql.create_user_details(user_id, phone, preferences, address)  # Assuming create_user_details takes user_id
+            except ValueError:
+                print("Invalid input. Please enter an integer for user ID.")
+            except sqlite3.Error as e:
+                print(f"Error creating user details: {e}")
+            else:
+                notify_user("User details created!")
         elif action == "Update User Details":
-            user_id = int(input("Enter user id: "))
-            phone = input("Enter new phone number: ")
-            preferences = input("Enter new preferences: ")
-            address = input("Enter new address: ")
-            sql.update_user_details(user_id, phone, preferences, address)
-            notify_user("User details updated!")
+            try:
+                user_id = int(input("Enter user id: "))
+                phone = input("Enter new phone number: ")
+                preferences = input("Enter new preferences: ")
+                address = input("Enter new address: ")
+                sql.update_user_details(user_id, phone, preferences, address)
+            except ValueError:
+                print("Invalid input. Please enter an integer for user ID.")
+            except sqlite3.Error as e:
+                print(f"Error updating user details: {e}")
+            else:
+                notify_user("User details updated!")
         elif action == "Delete User Details":
-            user_id = int(input("Enter user id: "))
-            sql.delete_user_details(user_id)
-            notify_user("User details deleted!")
+            try:
+                user_id = int(input("Enter user id: "))
+                sql.delete_user_details(user_id)
+            except ValueError:
+                print("Invalid input. Please enter an integer for user ID.")
+            except sqlite3.Error as e:
+                print(f"Error deleting user details: {e}")
+            else:
+                notify_user("User details deleted!")
         elif action == "View User Details":
-            user_id = int(input("Enter user id: "))
-            user_details = sql.read_user_details(user_id)
-            table_printer(user_details, ['User ID', 'Phone', 'Preferences', 'Address'])
+            try:
+                user_id = int(input("Enter user id: "))
+                user_details = sql.read_user_details(user_id)
+                if user_details:
+                    table_printer(user_details, ['User ID', 'Phone', 'Preferences', 'Address'])
+                else:
+                    print(f"No user details found for user ID {user_id}")
+            except ValueError:
+                print("Invalid input. Please enter an integer for user ID.")
         elif action == "Fetch All User Details":
             users_details = sql.read_users_details()
-            table_printer(users_details, ['User ID', 'Phone', 'Preferences', 'Address'])
+            if users_details:
+                table_printer(users_details, ['User ID', 'Phone', 'Preferences', 'Address'])
+            else:
+                print("No user details found.")
 
 # Task Operations
 def task_operations():
-    actions = [
+    task_actions = [
         "Create Task", "Update Task", "Delete Task", 
         "Fetch Task", "Fetch All Tasks", "Mark Task as Complete", 
         "Back to Main Menu"
     ]
     while True:
-        action = inquirer.prompt([inquirer.List("action", message="Task Operations", choices=actions)])['action']
+        action = inquirer.prompt([inquirer.List("action", message="Task Operations", choices=task_actions)])['action']
         if action == "Back to Main Menu":
             break
-
         elif action == "Create Task":
-            user_id = int(input("Enter user id: "))
-            description = input("Enter task description: ")
-            due_date = input("Enter due date (YYYY-MM-DD): ")
-            status = input("Enter task status: ")
-            sql.create_task(user_id, description, due_date, status)
-            notify_user("Task created!")
-
+            try:
+                user_id = int(input("Enter user id: "))
+                description = input("Enter task description: ")
+                due_date = input("Enter due date (YYYY-MM-DD): ")
+                status = input("Enter task status: ")
+                sql.create_task(user_id, description, due_date, status)
+            except ValueError:
+                print("Invalid input. Please enter an integer for user ID.")
+            except sqlite3.Error as e:
+                print(f"Error creating task: {e}")
+            else:
+                notify_user("Task created!")
         elif action == "Update Task":
-            task_id = int(input("Enter task id: "))
-            user_id = int(input("Enter new user id: "))
-            description = input("Enter new task description: ")
-            due_date = input("Enter new due date (YYYY-MM-DD): ")
-            status = input("Enter new task status: ")
-            sql.update_task(user_id, description, due_date, status, task_id)
-            notify_user("Task updated!")
-
+            try:
+                task_id = int(input("Enter task id: "))
+                user_id = int(input("Enter new user id: "))
+                description = input("Enter new task description: ")
+                due_date = input("Enter new due date (YYYY-MM-DD): ")
+                status = input("Enter new task status: ")
+                sql.update_task(user_id, description, due_date, status, task_id)
+            except ValueError:
+                print("Invalid input. Please enter integers for task ID and user ID.")
+            except sqlite3.Error as e:
+                print(f"Error updating task: {e}")
+            else:
+                notify_user("Task updated!")
         elif action == "Delete Task":
-            task_id = int(input("Enter task id: "))
-            sql.delete_task(task_id)
-            notify_user("Task deleted!")
-
+            try:
+                task_id = int(input("Enter task id: "))
+                sql.delete_task(task_id)
+            except ValueError:
+                print("Invalid input. Please enter an integer for task ID.")
+            except sqlite3.Error as e:
+                print(f"Error deleting task: {e}")
+            else:
+                notify_user("Task deleted!")
         elif action == "Fetch Task":
-            task_id = int(input("Enter task id: "))
-            task = sql.read_task(task_id)
-            table_printer(task, ['Task ID', 'User ID', 'Description', 'Due Date', 'Status'])
-
+            try:
+                task_id = int(input("Enter task id: "))
+                task = sql.read_task(task_id)
+                if task:
+                    table_printer(task, ['Task ID', 'User ID', 'Description', 'Due Date', 'Status'])
+                else:
+                    print(f"No task found with ID {task_id}")
+            except ValueError:
+                print("Invalid input. Please enter an integer for task ID.")
         elif action == "Fetch All Tasks":
             tasks = sql.read_tasks()
-            table_printer(tasks, ['Task ID', 'User ID', 'Description', 'Due Date', 'Status'])
-
+            if tasks:
+                table_printer(tasks, ['Task ID', 'User ID', 'Description', 'Due Date', 'Status'])
+            else:
+                print("No tasks found.")
         elif action == "Mark Task as Complete":
-            task_id = int(input("Enter task id: "))
-            sql.mark_task_as_complete(task_id)
-            notify_user("Task marked as complete!")
+            try:
+                task_id = int(input("Enter task id: "))
+                sql.mark_task_as_complete(task_id)
+            except ValueError:
+                print("Invalid input. Please enter an integer for task ID.")
+            except sqlite3.Error as e:
+                print(f"Error marking task as complete: {e}")
+            else:
+                notify_user("Task marked as complete!")
 
 # Tag Operations
 def tag_operations():
-    actions = [
+    tag_actions = [
         "Create Tag", "Update Tag", "Delete Tag",
         "Fetch Tag", "Fetch All Tags", "Back to Main Menu"
     ]
     while True:
-        action = inquirer.prompt([inquirer.List("action", message="Tag Operations", choices=actions)])['action']
+        action = inquirer.prompt([inquirer.List("action", message="Tag Operations", choices=tag_actions)])['action']
         if action == "Back to Main Menu":
             break
         elif action == "Create Tag":
+            try:
                 name = input("Enter tag name: ")
                 sql.create_tag(name)
+            except sqlite3.Error as e:
+                print(f"Error creating tag: {e}")
+            else:
                 notify_user("Tag created!")
-
         elif action == "Update Tag":
-            tag_id = int(input("Enter tag id: "))
-            name = input("Enter new tag name: ")
-            sql.update_tag(tag_id, name)
-            notify_user("Tag updated!")
-
+            try:
+                tag_id = int(input("Enter tag id: "))
+                name = input("Enter new tag name: ")
+                sql.update_tag(tag_id, name)
+            except ValueError:
+                print("Invalid input. Please enter an integer for tag ID.")
+            except sqlite3.Error as e:
+                print(f"Error updating tag: {e}")
+            else:
+                notify_user("Tag updated!")
         elif action == "Delete Tag":
-            tag_id = int(input("Enter tag id: "))
-            sql.delete_tag(tag_id)
-            notify_user("Tag deleted!")
-
+            try:
+                tag_id = int(input("Enter tag id: "))
+                sql.delete_tag(tag_id)
+            except ValueError:
+                print("Invalid input. Please enter an integer for tag ID.")
+            except sqlite3.Error as e:
+                print(f"Error deleting tag: {e}")
+            else:
+                notify_user("Tag deleted!")
         elif action == "Fetch Tag":
-            tag_id = int(input("Enter tag id: "))
-            tag = sql.read_tag(tag_id)
-            table_printer(tag, ['Tag ID', 'Name'])
-
+            try:
+                tag_id = int(input("Enter tag id: "))
+                tag = sql.read_tag(tag_id)
+                if tag:
+                    table_printer(tag, ['Tag ID', 'Name'])
+                else:
+                    print(f"No tag found with ID {tag_id}")
+            except ValueError:
+                print("Invalid input. Please enter an integer for tag ID.")
         elif action == "Fetch All Tags":
             tags = sql.read_tags()
-            table_printer(tags, ['Tag ID', 'Name'])
+            if tags:
+                table_printer(tags, ['Tag ID', 'Name'])
+            else:
+                print("No tags found.")
 
 # Task-Tag Relations Operations
 def task_tag_relations_operations():
-    actions = [
+    task_tag_actions = [
         "Create Task Tag Relation", "Fetch Tags for Task",
         "Fetch Tasks for Tag", "remove_tag_from_task",
         "Back to Main Menu"
     ]
     while True:
-        action = inquirer.prompt([inquirer.List("action", message="Tag Operations", choices=actions)])['action']
+        action = inquirer.prompt([inquirer.List("action", message="Tag Operations", choices=task_tag_actions)])['action']
         if action == "Back to Main Menu":
             break
         elif action == "Create Task Tag Relation":
-            task_id = int(input("Enter task id: "))
-            tag_id = int(input("Enter tag id: "))
-            sql.create_task_tag_relation(task_id, tag_id)
-            notify_user("Tag assigned to task!")
-
+            try:
+                task_id = int(input("Enter task id: "))
+                tag_id = int(input("Enter tag id: "))
+                sql.create_task_tag_relation(task_id, tag_id)
+            except ValueError:
+                print("Invalid input. Please enter integers for task ID and tag ID.")
+            except sqlite3.Error as e:
+                print(f"Error assigning tag to task: {e}")
+            else:
+                notify_user("Tag assigned to task!")
         elif action == "Fetch Tags for Task":
-            task_id = int(input("Enter task id: "))
-            tags = sql.read_tags_for_task(task_id)
-            print(tags)
-            table = PrettyTable(['Task ID', 'Tag ID', 'Tag Name'])
-            for tag in tags:
-                tag_details = sql.read_tag(tag)
-                table.add_row([task_id, tag_details[0], tag_details[1]])
-            print(table)
-
+            try:
+                task_id = int(input("Enter task id: "))
+                tags = sql.read_tags_for_task(task_id)
+                if tags:
+                    table = PrettyTable(['Task ID', 'Tag ID', 'Tag Name'])
+                    for tag in tags:
+                        tag_details = sql.read_tag(tag)
+                        table.add_row([task_id, tag_details[0], tag_details[1]])
+                    print(table)
+                else:
+                    print(f"No tags found for task ID {task_id}")
+            except ValueError:
+                print("Invalid input. Please enter an integer for task ID.")
         elif action == "Fetch Tasks for Tag":
-            tag_id = int(input("Enter tag id: "))
-            tasks = sql.read_tasks_for_tag(tag_id)
-            
-            table = PrettyTable(['Task ID', 'User ID', 'Description', 'Due Date', 'Status'])
-            for task in tasks:
-                task_details = sql.read_task(task)
-                table.add_row([task_details[0], task_details[1], task_details[2], task_details[3], task_details[4]])
-            print(table)
-
+            try:
+                tag_id = int(input("Enter tag id: "))
+                tasks = sql.read_tasks_for_tag(tag_id)
+                if tasks:
+                    table = PrettyTable(['Task ID', 'User ID', 'Description', 'Due Date', 'Status'])
+                    for task in tasks:
+                        task_details = sql.read_task(task)
+                        table.add_row([task_details[0], task_details[1], task_details[2], task_details[3], task_details[4]])
+                    print(table)
+                else:
+                    print(f"No tasks found for tag ID {tag_id}")
+            except ValueError:
+                print("Invalid input. Please enter an integer for tag ID.")
         elif action == "remove_tag_from_task":
-            task_id = int(input("Enter task id: "))
-            sql.remove_tag_from_task(task_id)
-            notify_user("Tag unassigned from task!")
+            try:
+                task_id = int(input("Enter task id: "))
+                sql.remove_tag_from_task(task_id)
+            except ValueError:
+                print("Invalid input. Please enter an integer for task ID.")
+            except sqlite3.Error as e:
+                print(f"Error unassigning tag from task: {e}")
+            else:
+                notify_user("Tag unassigned from task!")
 
 # Main Function
 def main():
@@ -254,14 +383,13 @@ def main():
     typing_effect_with_sound("Intel HQ: https://github.com/0xDAG0N/TaskForce141")
     print()
 
-
     while True:
-        actions = [
+        main_actions = [
             "User Operations", "User Details Operations", 
             "Task Operations", "Tag Operations", 
             "Task-Tag Relations Operations", "Exit"
         ]
-        action = inquirer.prompt([inquirer.List("action", message="Main Menu", choices=actions)])['action']
+        action = inquirer.prompt([inquirer.List("action", message="Main Menu", choices=main_actions)])['action']
         if action == "Exit":
             print(text2art("Goodbye!"))
             break
