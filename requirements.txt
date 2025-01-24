@@ -1,6 +1,0 @@
-art
-termcolor
-inquirer
-prettytable
-playsound
-pygame
